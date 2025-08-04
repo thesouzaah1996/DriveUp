@@ -1,6 +1,7 @@
 package com.driveup.driveup.controller;
 
 import com.driveup.driveup.dto.CarPostDTO;
+import com.driveup.driveup.message.KafkaProducerMessage;
 import com.driveup.driveup.service.CarPostStoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,15 @@ public class CarPostController {
     @GetMapping("/posts")
     public ResponseEntity<List<CarPostDTO>> getCarSales() {
         return ResponseEntity.status(HttpStatus.FOUND).body(carPostStoreService.getCarsForSale());
+    }
+
+    @Autowired
+    private KafkaProducerMessage kafkaProducerMessage;
+
+    @PostMapping("/post")
+    public ResponseEntity postCarForSale(@RequestBody CarPostDTO carPostDTO) {
+        kafkaProducerMessage.sendMessage(carPostDTO);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
